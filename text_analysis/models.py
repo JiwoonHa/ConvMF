@@ -14,7 +14,6 @@ from keras.layers.embeddings import Embedding
 from keras.models import Graph
 from keras.preprocessing import sequence
 
-
 class CNN_module():
     '''
     classdocs
@@ -74,7 +73,10 @@ class CNN_module():
         self.model.load_weights(model_path)
 
     def save_model(self, model_path, isoverwrite=True):
-        self.model.save_weights(model_path, isoverwrite)
+        self.model.save_weights(model_path + '_weights.hdf5', isoverwrite)
+        json_string = self.model.to_json()
+        with open(model_path + "_architecture.json", "w") as json_file: json_file.write(json_string)
+        #self.model.save(model_path + '_model.hdf5')
 
     def qualitative_CNN(self, vocab_size, emb_dim, max_len, nb_filters):
         self.max_len = max_len

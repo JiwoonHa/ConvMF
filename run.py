@@ -1,7 +1,9 @@
 '''
 Created on Dec 9, 2015
+Modified on Mar 30, 2017
 
 @author: donghyun
+@modifier: Jiwoon
 '''
 import argparse
 import sys
@@ -26,6 +28,7 @@ parser.add_argument("-s", "--vocab_size", type=int,
                     help="Size of vocabulary (default = 8000)", default=8000)
 parser.add_argument("-t", "--split_ratio", type=float,
                     help="Ratio: 1-ratio, ratio/2 and ratio/2 of the entire dataset (R) will be training, valid and test set, respectively (default = 0.2)", default=0.2)
+parser.add_argument("-b", "--new_item", type=int, help="The number of new items to build a new-item set as a test set (default = 0)", default=0)
 
 # Option for pre-processing data and running ConvMF
 parser.add_argument("-d", "--data_path", type=str,
@@ -71,6 +74,7 @@ if do_preprocess:
     max_df = args.max_df
     vocab_size = args.vocab_size
     split_ratio = args.split_ratio
+    new_item = args.new_item
 
     print "=================================Preprocess Option Setting================================="
     print "\tsaving preprocessed aux path - %s" % aux_path
@@ -79,13 +83,22 @@ if do_preprocess:
     print "\tdocument data path - %s" % path_itemtext
     print "\tmin_rating: %d\n\tmax_length_document: %d\n\tmax_df: %.1f\n\tvocab_size: %d\n\tsplit_ratio: %.1f" \
         % (min_rating, max_length, max_df, vocab_size, split_ratio)
+    print "\tnumber of new itmes: %d" % new_item
     print "==========================================================================================="
 
-    R, D_all = data_factory.preprocess(
-        path_rating, path_itemtext, min_rating, max_length, max_df, vocab_size)
-    data_factory.save(aux_path, R, D_all)
-    data_factory.generate_train_valid_test_file_from_R(
-        data_path, R, split_ratio)
+    if new_item:
+        print "Under construction"    
+        R_old, R_new, D_old, D_new = data_factory.preprocess_newitem(path_rating, path_itemtext, min_rating, max_length, max_df, vocab_size, new_item)
+        data_factory.save(aux_path, R_old, D_old, True, R_new, D_new)
+        data_factory.generate_train_valid_test_file_from_R(
+            data_path, R_old, split_ratio, R_new)
+        
+    else:
+        R, D_all = data_factory.preprocess(
+            path_rating, path_itemtext, min_rating, max_length, max_df, vocab_size)
+        data_factory.save(aux_path, R, D_all)
+        data_factory.generate_train_valid_test_file_from_R(
+            data_path, R, split_ratio)
 else:
     res_dir = args.res_dir
     emb_dim = args.emb_dim

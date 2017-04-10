@@ -107,7 +107,7 @@ def ConvMF(res_dir, train_user, train_item, valid_user, test_user,
         converge = abs((loss - PREV_LOSS) / PREV_LOSS)
 
         if (val_eval < pre_val_eval):
-            cnn_module.save_model(res_dir + '/CNN_weights.hdf5')
+            cnn_module.save_model(res_dir + '/CNN')
             np.savetxt(res_dir + '/U.dat', U)
             np.savetxt(res_dir + '/V.dat', V)
             np.savetxt(res_dir + '/theta.dat', theta)
